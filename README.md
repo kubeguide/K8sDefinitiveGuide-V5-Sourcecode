@@ -1,2 +1,1 @@
-# K8sDefinitiveGuide-V5-Sourcecode
-《Kubernetes - The Definitive Guide》 5th Edition Source Code
+# 《Kubernetes权威指南》第 5 版书中示例代码
