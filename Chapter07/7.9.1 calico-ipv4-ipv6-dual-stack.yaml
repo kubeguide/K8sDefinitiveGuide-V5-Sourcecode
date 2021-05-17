@@ -1,0 +1,60 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  ......
+  cni_network_config: |-
+    {
+      "name": "k8s-pod-network",
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          ......
+          "ipam": {
+              "type": "calico-ipam",
+              "assign_ipv4": "true",
+              "assign_ipv6": "true"
+          },
+          ......
+    }
+
+
+
+---
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: calico-node
+  namespace: kube-system
+  labels:
+    k8s-app: calico-node
+spec:
+    ......
+    spec:
+      ......
+      containers:
+        - name: calico-node
+          image: calico/node:v3.15.1
+          env:
+            ......
+            - name: IP
+              value: "autodetect"
+            - name: IP6
+              value: "autodetect"
+
+            - name: CALICO_IPV4POOL_CIDR
+              value: "10.0.0.0/16"
+            - name: CALICO_IPV6POOL_CIDR
+              value: "fa00::0/112"
+
+            - name: IP_AUTODETECTION_METHOD
+              value: "interface=ens.*"
+            - name: IP6_AUTODETECTION_METHOD
+              value: "interface=ens.*"
+
+            - name: FELIX_IPV6SUPPORT
+              value: "true"
+    ......

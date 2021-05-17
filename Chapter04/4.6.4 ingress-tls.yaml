@@ -1,0 +1,66 @@
+# mywebsite-ingress-secret.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mywebsite-ingress-secret
+type: kubernetes.io/tls
+data:
+  tls.crt: MIIDAzCCAeugAwIBAgIJALrTg9VLmFgdMA0GCSqGSIb3DQEBCwUAMBgxFjAUBgNVBAMMDW15d2Vic2l0ZS5jb20wHhcNMTcwNDIzMTMwMjA1WhcNMzAxMjMxMTMwMjA1WjAYMRYwFAYDVQQDDA1teXdlYnNpdGUuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApL1y1rq1I3EQ5E0PjzW8Lc3heW4WYTykPOisDT9Zgyc+TLPGj/YF4QnAuoIUAUNtXPlmINKuD9Fxzmh6q0oSBVb42BU0RzOTtvaCVOU+uoJ9MgJpd7Bao5higTZMyvj5a1M9iwb7k4xRAsuGCh/jDO8fj6tgJW4WfzawO5w1pDd2fFDxYn34Ma1pg0xFebVaiqBu9FL0JbiEimsV9y7V+g6jjfGffu2xl06X3svqAdfGhvS+uCTArAXiZgS279se1Xp834CG0MJeP7tamD44IfA2wkkmD+uCVjSEcNFsveY5cJevjf0PSE9g5wohSXphd1sIGyjEy2APeIJBP8bQ+wIDAQABo1AwTjAdBgNVHQ4EFgQUjmpxpmdFPKWkr+A2XLF7oqro2GkwHwYDVR0jBBgwFoAUjmpxpmdFPKWkr+A2XLF7oqro2GkwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAAVXPyfagP1AIov3kXRhI3WfyCOIN/sgNSqKM3FuykboSBN6c1w4UhrpF71Hd4nt0myeyX/o69o2Oc9a9dIS2FEGKvfxZQ4sa99iI3qjoMAuuf/Q9fDYIZ+k0YvY4pbcCqqOyICFBCMLlAct/aB0K1GBvC5k06vD4Rn2fOdVMkloW+Zf41cxVIRZe/tQGnZoEhtM6FQADrv1+jM5gjIKRX3s2/Jcxy5g2XLPqtSpzYA0F7FJyuFJXEG+P9X466xPi9ialUri66vkbUVT6uLXGhhunsu6bZ/qwsm2HzdPo4WRQ3z2VhgFzHEzHVVX+CEyZ8fJGoSi7njapHb08lRiztQ==
+  tls.key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCkvXLWurUjcRDkTQ+PNbwtzeF5bhZhPKQ86KwNP1mDJz5Ms8aP9gXhCcC6ghQBQ21c+WYg0q4P0XHOaHqrShIFVvjYFTRHM5O29oJU5T66gn0yAml3sFqjmGKBNkzK+PlrUz2LBvuTjFECy4YKH+MM7x+Pq2AlbhZ/NrA7nDWkN3Z8UPFiffgxrWmDTEV5tVqKoG70UvQluISKaxX3LtX6DqON8Z9+7bGXTpfey+oB18aG9L64JMCsBeJmBLbv2x7VenzfgIbQwl4/u1qYPjgh8DbCSSYP64JWNIRw0Wy95jlwl6+N/Q9IT2DnCiFJemF3WwgbKMTLYA94gkE/xtD7AgMBAAECggEAUftNePq1RgvwYgzPX29YVFsOiAV28bDh8sW/SWBrRU90O2uDtwSx7EmUNbyiA/bwJ8KdRlxR7uFGB3gLA876pNmhQLdcqspKClUmiuUCkIJ7lzWIEt4aXStqae8BzEiWpwhnqhYxgD3l2sQ50jQII9mkFTUtxbLBU1F95kxYjX2XmFTrrvwroDLZEHCPcbY9hNUFhZaCdBBYKADmWo9eV/xZJ97ZAFpbpWyONrFjNwMjjqCmxMx3HwOI/tLbhpvob6RT1UG1QUPlbB8aXR1FeSgt0NYhYwWKF7JSXcYBiyQubtd3T6RBtNjFk4b/zuEUhdFN1lKJLcsVDVQZgMsO4QKBgQDajXAq4hMKPH3CKdieAialj4rVAPyrAFYDMokW+7buZZAgZO1arRtqFWLTtp6hwHqwTySHFyiRsK2Ikfct1H16hRn6FXbiPrFDP8gpYveu31Cd1qqYUYI7xaodWUiLldrteun9sLr3YYR7kaXYRenWZFjZbbUkq3KJfoh+uArPwwKBgQDA95Y4xhcL0F5pE/TLEdj33WjRXMkXMCHXGl3fTnBImoRf7jF9e5fRK/v4YIHaMCOn+6drwMv9KHFL0nvxPbgbECW1F2OfzmNgm6l7jkpcsCQOVtuu1+4gK+B2geQYRA2LhBk+9MtGQFmwSPgwSg+VHUrm28qhzUmTCN1etdpeaQKBgGAFqHSO44Kp1S8Lp6q0kzpGeN7hEiIngaLh/y1j5pmTceFptocSa2sOfl86azPyF3WDMC9SU3a/Q18vkoRGSeMcu68O4y7AEK3VRiI4402nvAm9GTLXDPsp+3XtllwNuSSBznCxx1ONOuH3uf/tp7GUYR0WgHHeCfKy71GNluJ1AoGAKhHQXnBRdfHno2EGbX9mniNXRs3DyZpkxlCpRpYDRNDrKz7y6ziW0LOWK4BezwLPwz/KMGPIFVlL2gv5mY6rJLtQfTqsLZsBb36AZL+Q1sRQGBA3tNa+w6TNOwj2gZPUoCYcmu0jpB1DcHt4II8E9q18NviUJNJsx/GW0Z80DIECgYEAxzQBh/ckRvRaprN0v8w9GRq3wTYYD9y15U+3ecEIZrr1g9bLOi/rktXy3vqL6kj6CFlpwwRVLj8R3u1QPy3MpJNXYR1Bua+/FVn2xKwyYDuXaqs0vW3xLONVO7z44gAKmEQyDq2sir+vpayuY4psfXXK06uifz6ELfVyY6XZvRA=
+
+
+
+
+# openssl.cnf
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = mywebsite.com
+DNS.2 = mywebsite2.com
+
+
+openssl genrsa -out ca.key 2048
+
+openssl req -x509 -new -nodes -key ca.key -days 5000 -out ca.crt -subj "/CN=mywebsite.com"
+
+openssl genrsa -out ingress.key 2048
+
+openssl req -new -key ingress.key -out ingress.csr -subj "/CN=mywebsite.com" -config openssl.cnf
+
+openssl x509 -req -in ingress.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out ingress.crt -days 5000 -extensions v3_req -extfile openssl.cnf
+
+
+
+
+# mywebsite-ingress-tls.yaml
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mywebsite-ingress-tls
+spec:
+  tls:
+  - hosts:
+    - mywebsite.com
+    secretName: mywebsite-ingress-secret
+  rules:
+  - host: mywebsite.com
+    http:
+      paths:
+      - path: /demo
+        pathType: Prefix
+        backend:
+          service:
+            name: webapp
+            port:
+              number: 8080
+
+
+curl -H 'Host:mywebsite.com' -k https://192.168.18.3/demo/

@@ -1,0 +1,61 @@
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+brew install helm
+
+choco install kubernetes-helm
+
+curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https --yes
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+
+
+
+helm repo add stable https://charts.helm.sh/stable
+
+helm search repo stable
+
+helm search hub
+
+helm search hub mysql
+
+helm repo list
+
+helm repo add dev https://example.com/dev-charts
+
+helm repo update
+
+helm repo remove stable
+
+helm install mariadb-1 stable/mariadb
+
+helm list
+
+helm status mariadb-1
+
+helm show values stable/mariadb
+
+helm install -f config.yaml mariadb-1 stable/mariadb
+
+helm upgrade -f user1.yaml mariadb-1 stable/mariadb
+
+helm get values mariadb-1
+
+helm rollback mariadb-1 1
+
+helm history mariadb-1
+
+helm uninstall mariadb-1
+
+helm uninstall mariadb-1 --keep-history
+
+helm list --uninstalled
+
+helm create deis-workflow
+
+helm lint deis-workflow
+
+helm package deis-workflow
+
+helm install deis-workflow-1 deis-workflow-0.1.0.tgz

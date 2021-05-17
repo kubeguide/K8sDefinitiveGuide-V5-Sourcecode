@@ -1,0 +1,65 @@
+# /usr/lib/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=docker.target
+
+[Service]
+EnvironmentFile=/etc/kubernetes/kubelet
+ExecStart=/usr/bin/kubelet $KUBELET_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+# /etc/kubernetes/kubelet
+KUBELET_ARGS="--kubeconfig=/etc/kubernetes/kubeconfig --config=/etc/kubernetes/kubelet.config \
+--hostname-override=192.168.18.3 \
+--network-plugin=cni \
+--logtostderr=false --log-dir=/var/log/kubernetes --v=0"
+
+
+# /etc/kubernetes/kubelet.config
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+address: 0.0.0.0
+port: 10250
+cgroupDriver: cgroupfs
+clusterDNS: ["169.169.0.100"]
+clusterDomain: cluster.local
+authentication:
+  anonymous:
+    enabled: true
+
+
+systemctl start kubelet && systemctl enable kubelet
+
+
+
+
+
+# /usr/lib/systemd/system/kube-proxy.service
+ [Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/kubernetes/proxy
+ExecStart=/usr/bin/kube-proxy $KUBE_PROXY_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+# /etc/kubernetes/proxy
+KUBE_PROXY_ARGS="--kubeconfig=/etc/kubernetes/kubeconfig \
+--hostname-override=192.168.18.3 \
+--proxy-mode=iptables \
+--logtostderr=false --log-dir=/var/log/kubernetes --v=0"
+
+
+systemctl start kube-proxy && systemctl enable kube-proxy

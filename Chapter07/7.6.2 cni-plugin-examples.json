@@ -1,0 +1,82 @@
+# bridge
+{
+  "cniVersion": "0.4.0",
+  "name": "dbnet",
+  "type": "bridge",
+  "bridge": "cni0",
+  "ipam": {
+    "type": "host-local",
+    "subnet": "10.1.0.0/16",
+    "gateway": "10.1.0.1"
+  },
+  "dns": {
+    "nameservers": [ "10.1.0.1" ]
+  }
+}
+
+
+# ovs
+{
+  "cniVersion": "0.4.0",
+  "name": "pci",
+  "type": "ovs",
+  "bridge": "ovs0",
+  "vxlanID": 42,
+  "ipam": {
+    "type": "dhcp",
+    "routes": [ { "dst": "10.3.0.0/16" }, { "dst": "10.4.0.0/16" } ]
+  },
+  "args": {
+    "labels" : {
+        "appVersion" : "1.0"
+    }
+  }
+}
+
+
+# macvlan
+{
+  "cniVersion": "0.4.0",
+  "name": "wan",
+  "type": "macvlan",
+  "ipam": {
+    "type": "dhcp",
+    "routes": [ { "dst": "10.0.0.0/8", "gw": "10.0.0.1" } ]
+  },
+  "dns": {
+    "nameservers": [ "10.0.0.1" ]
+  }
+}
+
+
+
+# cni network configuration list
+{
+  "cniVersion": "0.4.0",
+  "name": "dbnet",
+  "plugins": [
+    {
+      "type": "bridge",
+      "bridge": "cni0",
+      "args": {
+        "labels" : {
+            "appVersion" : "1.0"
+        }
+      },
+      "ipam": {
+        "type": "host-local",
+        "subnet": "10.1.0.0/16",
+        "gateway": "10.1.0.1"
+      },
+      "dns": {
+        "nameservers": [ "10.1.0.1" ]
+      }
+    },
+    {
+      "type": "tuning",
+      "sysctl": {
+        "net.core.somaxconn": "500"
+      }
+    }
+  ]
+}

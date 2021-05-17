@@ -1,0 +1,41 @@
+# AllowedHostPaths
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: allow-hostpath-volumes
+spec:
+  volumes:
+    - hostPath
+  allowedHostPaths:
+    - pathPrefix: "/foo"
+      readOnly: true
+
+
+# allowedFlexVolumes
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: allow-flex-volumes
+spec:
+......
+  volumes:
+    - flexVolume
+  allowedFlexVolumes:
+    - driver: example/lvm
+    - driver: example/cifs
+
+
+# sysctl
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: sysctl-psp
+spec:
+  allowedUnsafeSysctls:
+  - kernel.msg*
+  forbiddenSysctls:
+  - kernel.shm_rmid_forced
+ ......

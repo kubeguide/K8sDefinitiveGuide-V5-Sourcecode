@@ -1,0 +1,25 @@
+# svc-webapp-ipv4.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: webapp
+
+
+# svc-webapp-ipv6.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-ipv6
+spec:
+  ipFamily: IPv6
+  ports:
+    - port: 8080
+  selector:
+    app: webapp

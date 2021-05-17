@@ -1,0 +1,61 @@
+# nginx.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+
+# networkpolicy-allow-nginxclient.yaml
+---
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-nginxclient
+spec:
+  podSelector:
+    matchLabels:
+      app: nginx
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            role: nginxclient
+      ports:
+      - protocol: TCP
+        port: 80
+
+
+
+
+# client1.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client1
+  labels:
+    role: nginxclient
+spec:
+  containers:
+  - name: client1
+    image: busybox
+    command: [ "sleep", "3600" ]
+
+# client2.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client2
+spec:
+  containers:
+  - name: client2
+    image: busybox
+    command: [ "sleep", "3600" ]

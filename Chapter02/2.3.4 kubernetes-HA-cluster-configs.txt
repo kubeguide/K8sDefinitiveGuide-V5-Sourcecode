@@ -1,0 +1,318 @@
+# CA证书配置
+
+# master_ssl.cnf
+[req]
+req_extensions = v3_req
+distinguished_name = req_distinguished_name
+[req_distinguished_name]
+
+[ v3_req ]
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = kubernetes
+DNS.2 = kubernetes.default
+DNS.3 = kubernetes.default.svc
+DNS.4 = kubernetes.default.svc.cluster.local
+DNS.5 = k8s-1
+DNS.6 = k8s-2
+DNS.7 = k8s-3
+IP.1 = 169.169.0.1
+IP.2 = 192.168.18.3
+IP.3 = 192.168.18.4
+IP.4 = 192.168.18.5
+IP.5 = 192.168.18.100
+
+
+
+# 创建服务端CA证书
+
+openssl genrsa -out apiserver.key 2048
+
+openssl req -new -key apiserver.key -config master_ssl.cnf -subj "/CN=192.168.18.3" -out apiserver.csr
+
+openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial -days 36500 -extensions v3_req -extfile master_ssl.cnf -out apiserver.crt
+
+
+
+
+# Kubernetes各服务的配置
+
+# /usr/lib/systemd/system/kube-apiserver.service
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+EnvironmentFile=/etc/kubernetes/apiserver
+ExecStart=/usr/bin/kube-apiserver $KUBE_API_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+# /etc/kubernetes/apiserver
+KUBE_API_ARGS="--insecure-port=0 \
+--secure-port=6443 \
+--tls-cert-file=/etc/kubernetes/pki/apiserver.crt \
+--tls-private-key-file=/etc/kubernetes/pki/apiserver.key \
+--client-ca-file=/etc/kubernetes/pki/ca.crt \
+--apiserver-count=3 --endpoint-reconciler-type=master-count \
+--etcd-servers=https://192.168.18.3:2379,https://192.168.18.4:2379,https://192.168.18.5:2379 \
+--etcd-cafile=/etc/kubernetes/pki/ca.crt \
+--etcd-certfile=/etc/etcd/pki/etcd_client.crt \
+--etcd-keyfile=/etc/etcd/pki/etcd_client.key \
+--service-cluster-ip-range=169.169.0.0/16 \
+--service-node-port-range=30000-32767 \
+--allow-privileged=true \
+--logtostderr=false --log-dir=/var/log/kubernetes --v=0"
+
+
+systemctl start kube-apiserver && systemctl enable kube-apiserver
+
+
+
+# 创建客户端CA证书
+openssl genrsa -out client.key 2048
+
+openssl req -new -key client.key -subj "/CN=admin" -out client.csr
+
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 36500
+
+
+
+
+# /etc/kubernetes/kubeconfig
+apiVersion: v1
+kind: Config
+clusters:
+- name: default
+  cluster:
+    server: https://192.168.18.100:9443
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+users:
+- name: admin
+  user:
+    client-certificate: /etc/kubernetes/pki/client.crt
+    client-key: /etc/kubernetes/pki/client.key
+contexts:
+- context:
+    cluster: default
+    user: admin
+  name: default
+current-context: default
+
+
+
+# /usr/lib/systemd/system/kube-controller-manager.service
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+EnvironmentFile=/etc/kubernetes/controller-manager
+ExecStart=/usr/bin/kube-controller-manager $KUBE_CONTROLLER_MANAGER_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+# /etc/kubernetes/controller-manager
+KUBE_CONTROLLER_MANAGER_ARGS="--kubeconfig=/etc/kubernetes/kubeconfig \
+--leader-elect=true \
+--service-cluster-ip-range=169.169.0.0/16 \
+--service-account-private-key-file=/etc/kubernetes/pki/apiserver.key \
+--root-ca-file=/etc/kubernetes/pki/ca.crt \
+--log-dir=/var/log/kubernetes --logtostderr=false --v=0"
+
+
+systemctl start kube-controller-manager && systemctl enable kube-controller-manager
+
+
+
+
+# /usr/lib/systemd/system/kube-scheduler.service
+[Unit]
+Description=Kubernetes Scheduler
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+EnvironmentFile=/etc/kubernetes/scheduler
+ExecStart=/usr/bin/kube-scheduler $KUBE_SCHEDULER_ARGS
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+# /etc/kubernetes/scheduler
+KUBE_SCHEDULER_ARGS="--kubeconfig=/etc/kubernetes/kubeconfig \
+--leader-elect=true \
+--logtostderr=false --log-dir=/var/log/kubernetes --v=0"
+
+
+systemctl start kube-scheduler && systemctl enable kube-scheduler
+
+
+
+# HAProxy和keepalived 配置
+
+# haproxy.cfg
+global
+    log         127.0.0.1 local2
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4096
+    user        haproxy
+    group       haproxy
+    daemon
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option                  http-server-close
+    option                  forwardfor    except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+
+frontend  kube-apiserver
+    mode                 tcp
+    bind                 *:9443
+    option               tcplog
+    default_backend      kube-apiserver
+
+listen stats
+    mode                 http
+    bind                 *:8888
+    stats auth           admin:password
+    stats refresh        5s
+    stats realm          HAProxy\ Statistics
+    stats uri            /stats
+    log                  127.0.0.1 local3 err
+
+backend kube-apiserver
+    mode        tcp
+    balance     roundrobin
+    server  k8s-master1 192.168.18.3:6443 check
+    server  k8s-master2 192.168.18.4:6443 check
+    server  k8s-master3 192.168.18.5:6443 check
+
+
+
+docker run -d --name k8s-haproxy \
+  --net=host \
+  --restart=always \
+  -v ${PWD}/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro \
+  haproxytech/haproxy-debian:2.3
+
+
+
+# keepalived.conf - master 1
+! Configuration File for keepalived
+
+global_defs {
+   router_id LVS_1
+}
+
+vrrp_script checkhaproxy
+{
+    script "/usr/bin/check-haproxy.sh"
+    interval 2
+    weight -30
+}
+
+vrrp_instance VI_1 {
+    state MASTER
+    interface ens33
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+
+    virtual_ipaddress {
+        192.168.18.100/24 dev ens33
+    }
+
+    authentication {
+        auth_type PASS
+        auth_pass password
+    }
+
+    track_script {
+        checkhaproxy
+    }
+}
+
+
+# check-haproxy.sh
+#!/bin/bash
+
+count=`netstat -apn | grep 9443 | wc -l`
+
+if [ $count -gt 0 ]; then
+    exit 0
+else
+    exit 1
+fi
+
+
+
+# keepalived.conf - master 2
+! Configuration File for keepalived
+
+global_defs {
+   router_id LVS_2
+}
+
+vrrp_script checkhaproxy
+{
+    script "/usr/bin/check-haproxy.sh"
+    interval 2
+    weight -30
+}
+
+vrrp_instance VI_1 {
+
+    state BACKUP
+    interface ens33
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+
+    virtual_ipaddress {
+        192.168.18.100/24 dev ens33
+    }
+
+    authentication {
+        auth_type PASS
+        auth_pass password
+    }
+
+    track_script {
+        checkhaproxy
+    }
+}
+
+
+
+docker run -d --name k8s-keepalived \
+  --restart=always \
+  --net=host \
+  --cap-add=NET_ADMIN --cap-add=NET_BROADCAST --cap-add=NET_RAW \
+  -v ${PWD}/keepalived.conf:/container/service/keepalived/assets/keepalived.conf \
+  -v ${PWD}/check-haproxy.sh:/usr/bin/check-haproxy.sh \
+  osixia/keepalived:2.0.20 --copy-service
