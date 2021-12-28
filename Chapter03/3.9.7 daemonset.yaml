@@ -6,6 +6,9 @@ metadata:
   labels:
     k8s-app: fluentd-cloud-logging
 spec:
+  selector:
+    matchLabels:
+      k8s-app: fluentd-cloud-logging
   template:
     metadata:
       namespace: kube-system
