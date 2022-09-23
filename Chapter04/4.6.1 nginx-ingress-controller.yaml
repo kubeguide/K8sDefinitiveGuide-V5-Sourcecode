@@ -205,6 +205,8 @@ spec:
 
 
 
-curl --resolve mywebsite.com:80:192.168.18.3 http://mywebsite.com/demo/
+# test accessing service through ingress
+# curl --resolve mywebsite.com:80:192.168.18.3 http://mywebsite.com/demo/
 
-curl -H 'Host:mywebsite.com' http://192.168.18.3/demo/
+# test accessing service through ingress
+# curl -H 'Host:mywebsite.com' http://192.168.18.3/demo/
